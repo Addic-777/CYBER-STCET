@@ -115,6 +115,7 @@
       border-radius: 5px;
       cursor: pointer;
       transition: background 0.3s;
+      margin: 20px;
     }
 
     .hero-text button:hover {
@@ -362,7 +363,20 @@
       <div class="hero-text">
         <h1>Make Healthy Life With <span>Fresh Grocery</span></h1>
         <p>This year, our new summer collection will shelter you from the harsh elements of the world.</p>
-        <button>Shop Now</button>
+        <a href="shop.html">
+            <button>Shop Now</button>
+
+          </a>
+          <a href="categories.html">
+            <button><span>Points</span></button>
+        </a>
+        <a href="FtoCDash.html">
+            <button><span>F TO C Dashbord</span></button>
+        </a>
+        <a href="home.html">
+            <button><span>Admin Dashboard</span></button>
+        </a>
+          
         <div class="review-box">
           <img src="https://i.pravatar.cc/30?img=1" alt="User" />
           <img src="https://i.pravatar.cc/30?img=2" alt="User" />
@@ -411,7 +425,18 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/gsap.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.2.3/dist/lenis.min.js"></script> 
   <script>
+    // Initialize Lenis
+const lenis = new Lenis();
+
+// Use requestAnimationFrame to continuously update the scroll
+function raf(time) {
+  lenis.raf(time);
+  requestAnimationFrame(raf);
+}
+
+requestAnimationFrame(raf);
     var main = document.querySelector("#main");
     var cursor = document.querySelector("#cursor");
     var image = document.querySelector("#image");

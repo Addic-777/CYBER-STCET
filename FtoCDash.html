@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Farmers to Consumer Dashboard</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js"></script> <!-- GSAP Library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js Library -->
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 250px;
+      background-color: #27ae60;
+      color: white;
+      padding: 20px;
+      position: fixed;
+      top: 0;
+      left: -250px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: left 0.3s ease;
+    }
+
+    .sidebar .logo {
+      font-size: 1.6em;
+      margin-bottom: 30px;
+      font-weight: bold;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar ul li {
+      padding: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .sidebar ul li:hover {
+      background-color: #2ecc71;
+    }
+
+    /* Main Content Styles */
+    .main-content {
+      margin-left: 250px;
+      padding: 20px;
+      width: 100%;
+      transition: margin-left 0.3s ease;
+    }
+
+    .header h1 {
+      color: #333;
+      font-size: 2.5em;
+    }
+
+    .widgets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .card {
+      background-color: #ecf0f1;
+      padding: 20px;
+      width: 23%;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      transform: translateY(50px);
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    canvas {
+      width: 100%;
+      height: 250px;
+    }
+
+    /* Leaderboard Table Styles */
+    .leaderboard {
+      width: 100%;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table th, table td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+      background-color: #27ae60;
+      color: white;
+    }
+
+    table td {
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">FarmersToConsumer</div>
+    <ul>
+      <li>Dashboard</li>
+      <li>Orders</li>
+      <li>Products</li>
+      <li>Farmers</li>
+      <li>Sales</li>
+      <li>Leaderboard</li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="header">
+      <h1>Farmers to Consumer Platform Dashboard</h1>
+    </div>
+
+    <div class="widgets">
+      <div class="card">
+        <h3>Product Sales</h3>
+        <select id="chartTypeSelect">
+          <option value="sales">Sales Revenue</option>
+          <option value="inventory">Inventory</option>
+          <option value="orders">Recent Orders</option>
+        </select>
+        <canvas id="salesChart"></canvas>
+      </div>
+      <div class="card">
+        <h3>Inventory Overview</h3>
+        <ul>
+          <li>Potatoes - 500 units</li>
+          <li>Tomatoes - 200 units</li>
+          <li>Onions - 350 units</li>
+          <li>Carrots - 100 units</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Recent Orders</h3>
+        <ul>
+          <li>Order #101 - 5 Potatoes, 3 Tomatoes</li>
+          <li>Order #102 - 2 Carrots, 10 Onions</li>
+          <li>Order #103 - 20 Potatoes</li>
+        </ul>
+      </div>
+      <div class="card leaderboard">
+        <h3>Leaderboard</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Farmer</th>
+              <th>Points</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardTable">
+            
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  
+  <script>
+    
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('.main-content');
+    const cards = document.querySelectorAll('.card');
+
+    gsap.to(sidebar, {
+      left: 0,
+      duration: 0.6,
+      ease: 'power3.out',
+      delay: 0.5
+    });
+
+    
+    gsap.to(mainContent, {
+      marginLeft: '250px',
+      duration: 0.6,
+      ease: 'power3.out',
+      delay: 0.5
+    });
+
+
+    gsap.to(cards, {
+      opacity: 1,
+      y: 0,
+      stagger: 0.3,
+      duration: 1.5,
+      ease: 'power3.out',
+      delay: 1
+    });
+
+    
+    const salesCtx = document.getElementById('salesChart').getContext('2d');
+    let salesChart = new Chart(salesCtx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Sales Revenue ($)',
+          data: [5000, 7000, 8000, 9000, 10000, 12000],
+          borderColor: '#e74c3c',
+          fill: false,
+          tension: 0.2,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: { ticks: { font: { size: 12 } } },
+          y: { ticks: { font: { size: 12 } } }
+        }
+      }
+    });
+
+    
+    const leaderboardData = [
+      { name: 'Farmer John', points: 120 },
+      { name: 'Farmer Maria', points: 110 },
+      { name: 'Farmer Ahmed', points: 105 },
+      { name: 'Farmer Linda', points: 95 },
+      { name: 'Farmer Tom', points: 80 }
+    ];
+
+    
+    const generateLeaderboard = () => {
+      const leaderboardTable = document.getElementById('leaderboardTable');
+      leaderboardData.sort((a, b) => b.points - a.points); // Sort by points in descending order
+      leaderboardData.forEach(farmer => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${farmer.name}</td><td>${farmer.points}</td>`;
+        leaderboardTable.appendChild(row);
+      });
+    };
+
+    generateLeaderboard();
+
+
+    const chartTypeSelect = document.getElementById('chartTypeSelect');
+    chartTypeSelect.addEventListener('change', (event) => {
+      const selectedValue = event.target.value;
+      
+      if (selectedValue === 'sales') {
+        salesChart.data.datasets[0].data = [5000, 7000, 8000, 9000, 10000, 12000];
+        salesChart.update();
+      } else if (selectedValue === 'inventory') {
+        salesChart.data.labels = ['Potatoes', 'Tomatoes', 'Onions', 'Carrots'];
+        salesChart.data.datasets[0].data = [500, 200, 350, 100];
+        salesChart.update();
+      } else if (selectedValue === 'orders') {
+        salesChart.data.labels = ['Order #101', 'Order #102', 'Order #103'];
+        salesChart.data.datasets[0].data = [5, 2, 20];  // Example order data
+        salesChart.update();
+      }
+    });
+
+    
+    sidebar.addEventListener('click', () => {
+      const isOpen = sidebar.style.left === '0px';
+      gsap.to(sidebar, {
+        left: isOpen ? '-250px' : '0px',
+        duration: 0.6,
+        ease: 'power3.out'
+      });
+      gsap.to(mainContent, {
+        marginLeft: isOpen ? '0' : '250px',
+        duration: 0.6,
+        ease: 'power3.out'
+      });
+    });
+  </script>
+
+</body>
+</html>

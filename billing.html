@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Veggie Cart - Billing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2rem;
+      background: #f8f8f8;
+      color: #333;
+    }
+    h1 {
+      color: #4caf50;
+    }
+    .summary, .payment {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .payment label {
+      display: block;
+      margin-top: 1rem;
+    }
+    .payment input[type="text"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .total {
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+    button {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Checkout</h1>
+
+  <div class="summary" id="order-summary">
+    <h2>Order Summary</h2>
+    <ul id="item-list"></ul>
+    <p class="total">Total: ₹<span id="grand-total">0</span></p>
+  </div>
+
+  <div class="payment">
+    <h2>Payment Method</h2>
+    <label><input type="radio" name="payment" value="upi" checked> UPI</label>
+    <input type="text" id="upi-id" placeholder="Enter your UPI ID (e.g. name@bank)">
+
+    <label><input type="radio" name="payment" value="netbanking"> Net Banking</label>
+    <input type="text" id="netbank-details" placeholder="Enter Net Banking credentials">
+
+    <label><input type="radio" name="payment" value="cod"> Cash on Delivery</label>
+
+    <button onclick="placeOrder()">Place Order</button>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const cartData = urlParams.get('cart');
+    const cart = JSON.parse(decodeURIComponent(cartData || "[]"));
+
+    const itemList = document.getElementById("item-list");
+    const grandTotal = document.getElementById("grand-total");
+
+    let total = 0;
+    cart.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = `${item.name} - ₹${item.price}`;
+      itemList.appendChild(li);
+      total += item.price;
+    });
+
+    grandTotal.textContent = total;
+
+    function placeOrder() {
+      const paymentType = document.querySelector('input[name="payment"]:checked').value;
+      let paymentInfo = "";
+
+      if (paymentType === "upi") {
+        paymentInfo = document.getElementById("upi-id").value;
+        if (!paymentInfo) return alert("Please enter your UPI ID.");
+      } else if (paymentType === "netbanking") {
+        paymentInfo = document.getElementById("netbank-details").value;
+        if (!paymentInfo) return alert("Please enter net banking details.");
+      } else {
+        paymentInfo = "Cash on Delivery selected.";
+      }
+
+      alert(`✅ Order Placed Successfully!\nPayment Method: ${paymentType.toUpperCase()}\n${paymentInfo}`);
+      window.close();
+    }
+  </script>
+</body>
+</html>

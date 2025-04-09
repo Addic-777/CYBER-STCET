@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Veggie Cart</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+    }
+
+    header {
+      background-color: #4caf50;
+      color: white;
+      padding: 1rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .search-bar {
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+    }
+
+    .cart-summary {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    .checkout-btn {
+      margin-top: 0.5rem;
+      background-color: #fff;
+      color: #4caf50;
+      font-weight: bold;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 2px solid white;
+      cursor: pointer;
+    }
+
+    .checkout-btn:hover {
+      background-color: #e8f5e9;
+    }
+
+    .product-count {
+      font-size: 1.2rem;
+      margin-top: 0.5rem;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      padding: 2rem;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 1rem;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .card:hover {
+      transform: scale(1.03);
+    }
+
+    .card img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+    }
+
+    .card h3 {
+      margin: 10px 0;
+    }
+
+    .price {
+      color: #4caf50;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    button {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    🛒 Veggie Cart
+    <div class="cart-summary" id="cart-summary">
+      🛒 Items: <span id="item-count">0</span> | 💰 ₹<span id="total-price">0</span><br>
+      <button class="checkout-btn" onclick="checkout()">Checkout</button>
+    </div>
+    <div class="search-bar">
+      <input type="text" id="search" placeholder="Search for a vegetable...">
+    </div>
+    <div class="product-count">Showing <span id="visible-count">0</span> Fresh Items</div>
+  </header>
+
+  <div class="container" id="product-container">
+    <!-- Products will be rendered here -->
+  </div>
+
+  <script>
+    const baseVeggies = [
+      // Vegetables
+      { name: "Tomato", price: 20, image: "https://img.icons8.com/color/96/tomato.png" },
+      { name: "Potato", price: 15, image: "https://img.icons8.com/color/96/potato.png" },
+      { name: "Carrot", price: 25, image: "https://img.icons8.com/color/96/carrot.png" },
+      { name: "Broccoli", price: 35, image: "https://img.icons8.com/color/96/broccoli.png" },
+      { name: "Onion", price: 18, image: "https://img.icons8.com/color/96/onion.png" },
+      { name: "Cabbage", price: 22, image: "https://img.icons8.com/color/96/cabbage.png" },
+      { name: "Garlic", price: 30, image: "https://img.icons8.com/color/96/garlic.png" },
+      { name: "Chili", price: 10, image: "https://img.icons8.com/color/96/chili-pepper.png" },
+      { name: "Mushroom", price: 40, image: "https://img.icons8.com/color/96/mushroom.png" },
+      { name: "Corn", price: 28, image: "https://img.icons8.com/color/96/corn.png" },
+      { name: "Pumpkin", price: 32, image: "https://img.icons8.com/color/96/pumpkin.png" },
+      { name: "Beetroot", price: 27, image: "https://img.icons8.com/color/96/beet.png" },
+      { name: "Lettuce", price: 26, image: "https://img.icons8.com/color/96/lettuce.png" },
+      { name: "Peas", price: 24, image: "https://img.icons8.com/color/96/peas.png" },
+      { name: "Radish", price: 21, image: "https://img.icons8.com/color/96/radish.png" },
+      { name: "Spinach", price: 23, image: "https://img.icons8.com/color/96/spinach.png" },
+      { name: "Avocado", price: 45, image: "https://img.icons8.com/color/96/avocado.png" },
+      { name: "Eggplant", price: 20, image: "https://img.icons8.com/color/96/eggplant.png" },
+      { name: "Zucchini", price: 29, image: "https://img.icons8.com/color/96/zucchini.png" },
+      { name: "Sweet Potato", price: 19, image: "https://img.icons8.com/color/96/sweet-potato.png" },
+
+      // Rice & Cereals
+      { name: "Basmati Rice", price: 60, image: "https://img.icons8.com/color/96/rice-bowl.png" },
+      { name: "Brown Rice", price: 55, image: "https://img.icons8.com/color/96/rice-bowl.png" },
+      { name: "Wheat", price: 45, image: "https://img.icons8.com/color/96/wheat.png" },
+      { name: "Oats", price: 50, image: "https://img.icons8.com/color/96/oatmeal.png" },
+      { name: "Barley", price: 38, image: "https://img.icons8.com/color/96/grains.png" },
+      { name: "Quinoa", price: 70, image: "https://img.icons8.com/color/96/grain-bowl.png" },
+      { name: "Millet", price: 36, image: "https://img.icons8.com/color/96/grains.png" },
+      { name: "Cornflakes", price: 42, image: "https://img.icons8.com/color/96/cornflakes.png" },
+
+      // Meats
+      { name: "Chicken", price: 150, image: "https://img.icons8.com/color/96/chicken.png" },
+      { name: "Mutton", price: 220, image: "https://img.icons8.com/color/96/meat.png" },
+      { name: "Fish", price: 180, image: "https://img.icons8.com/color/96/fish-food.png" },
+      { name: "Eggs", price: 60, image: "https://img.icons8.com/color/96/eggs.png" },
+      { name: "Bacon", price: 90, image: "https://img.icons8.com/color/96/bacon.png" },
+      { name: "Sausage", price: 85, image: "https://img.icons8.com/color/96/sausage.png" },
+      { name: "Prawns", price: 200, image: "https://img.icons8.com/color/96/shrimp.png" }
+    ];
+
+    const products = baseVeggies;
+
+    let cart = [];
+    const container = document.getElementById("product-container");
+    const itemCount = document.getElementById("item-count");
+    const totalPrice = document.getElementById("total-price");
+    const searchInput = document.getElementById("search");
+    const visibleCount = document.getElementById("visible-count");
+
+    function renderProducts(filtered = products) {
+      container.innerHTML = '';
+      visibleCount.textContent = filtered.length;
+
+      filtered.forEach((product, index) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <img src="${product.image}" alt="${product.name}">
+          <h3>${product.name}</h3>
+          <p class="price">₹${product.price}</p>
+          <button onclick='addToCart(${JSON.stringify(product)})'>Add to Cart</button>
+        `;
+        container.appendChild(card);
+
+        gsap.from(card, {
+          opacity: 0,
+          y: 50,
+          duration: 0.4,
+          ease: "power2.out",
+          delay: index * 0.01
+        });
+      });
+    }
+
+    function addToCart(product) {
+      cart.push(product);
+      gsap.fromTo("#cart-summary", { scale: 1 }, { scale: 1.1, duration: 0.2, yoyo: true, repeat: 1 });
+      itemCount.textContent = cart.length;
+      totalPrice.textContent = cart.reduce((sum, p) => sum + p.price, 0);
+    }
+
+    function checkout() {
+  if (cart.length === 0) {
+    alert("🛒 Your cart is empty!");
+  } else {
+    const orderData = encodeURIComponent(JSON.stringify(cart));
+    window.open(`billing.html?cart=${orderData}`, "_blank");
+  }
+}
+
+    searchInput.addEventListener("input", (e) => {
+      const term = e.target.value.toLowerCase();
+      const filtered = products.filter(p => p.name.toLowerCase().includes(term));
+      renderProducts(filtered);
+    });
+
+    renderProducts();
+  </script>
+</body>
+</html>
+
