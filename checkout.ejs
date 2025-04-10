@@ -1,0 +1,480 @@
+<!--<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Veggie Cart - Billing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: linear-gradient(to right, #f0fff4, #e8f5e9);
+      color: #2e2e2e;
+    }
+    h1 {
+      color: #2e7d32;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 2.5rem;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      padding: 2rem;
+    }
+    h2 {
+      margin-top: 0;
+      color: #388e3c;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    #item-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #item-list li {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #eee;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    .total {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      text-align: right;
+    }
+    .payment label {
+      display: flex;
+      align-items: center;
+      margin-top: 1.25rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .payment input[type="radio"] {
+      margin-right: 0.75rem;
+      transform: scale(1.2);
+    }
+    .payment input[type="text"], 
+    .payment input[type="number"] {
+      margin-top: 0.5rem;
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+    button {
+      background: linear-gradient(90deg, #66bb6a, #43a047);
+      color: white;
+      border: none;
+      padding: 14px 24px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 12px;
+      margin-top: 2rem;
+      width: 100%;
+      transition: background 0.3s ease;
+      cursor: pointer;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #5cb85c, #388e3c);
+    }
+    .points-section {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px dashed #ccc;
+    }
+    .points-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    .points-action {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .points-action button {
+      margin-top: 0;
+      flex: 1;
+      padding: 10px;
+      font-size: 0.9rem;
+    }
+    .redeem-btn {
+      background: linear-gradient(90deg, #ffb74d, #ff9800);
+    }
+    .redeem-btn:hover {
+      background: linear-gradient(90deg, #ffa726, #fb8c00);
+    }
+    .discount {
+      color: #388e3c;
+      font-weight: 600;
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🛒 Checkout</h1>
+
+  <div class="container">
+    <div class="card summary" id="order-summary">
+      <h2>🧾 Order Summary</h2>
+      <ul id="item-list"></ul>
+      <div id="discount-display" style="display: none;">
+        <p class="discount">Points Discount: -₹<span id="discount-amount">0</span></p>
+      </div>
+      <p class="total">Total: ₹<span id="grand-total">0</span></p>
+      
+      <div class="points-section">
+        <h3>🌟 Loyalty Points</h3>
+        <div class="points-info">
+          <span>Available Points:</span>
+          <span id="available-points">500</span>
+        </div>
+        <div class="points-info">
+          <span>Exchange Rate:</span>
+          <span>50 points = ₹5</span>
+        </div>
+        <div class="points-action">
+          <input type="number" id="points-to-redeem" placeholder="Enter points to redeem" min="50" step="50" />
+          <button class="redeem-btn" onclick="redeemPoints()">Redeem</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card payment">
+      <h2>💳 Payment Method</h2>
+      <label><input type="radio" name="payment" value="upi" checked> UPI</label>
+      <input type="text" id="upi-id" placeholder="Enter your UPI ID (e.g. name@bank)" />
+
+      <label><input type="radio" name="payment" value="netbanking"> Net Banking</label>
+      <input type="text" id="netbank-details" placeholder="Enter Net Banking credentials" />
+
+      <label><input type="radio" name="payment" value="cod"> Cash on Delivery</label>
+
+      <button onclick="placeOrder()">🛍️ Place Order</button>
+    </div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const cartData = urlParams.get('cart');
+    const cart = JSON.parse(decodeURIComponent(cartData || "[]"));
+
+    const itemList = document.getElementById("item-list");
+    const grandTotal = document.getElementById("grand-total");
+    const availablePoints = document.getElementById("available-points");
+    const discountDisplay = document.getElementById("discount-display");
+    const discountAmount = document.getElementById("discount-amount");
+
+    let total = 0;
+    let discount = 0;
+    let pointsUsed = 0;
+    const userPoints = 500; // Starting with 500 points for demo
+
+    // Display available points
+    availablePoints.textContent = userPoints;
+
+    // Display cart items
+    cart.forEach(item => {
+      const li = document.createElement("li");
+      li.innerHTML = `<span>${item.name}</span><span>₹${item.price}</span>`;
+      itemList.appendChild(li);
+      total += item.price;
+    });
+
+    // Update grand total
+    updateGrandTotal();
+
+    function redeemPoints() {
+      const pointsInput = document.getElementById("points-to-redeem");
+      const points = parseInt(pointsInput.value);
+      
+      if (isNaN(points)){
+        alert("Please enter a valid number of points.");
+        return;
+      }
+      
+      if (points < 50) {
+        alert("Minimum redemption is 50 points.");
+        return;
+      }
+      
+      if (points % 50 !== 0) {
+        alert("Points must be in multiples of 50.");
+        return;
+      }
+      
+      if (points > userPoints) {
+        alert("You don't have enough points.");
+        return;
+      }
+      
+      // Calculate discount (50 points = ₹5)
+      discount = Math.floor(points / 50) * 5;
+      pointsUsed = points;
+      
+      // Update UI
+      discountDisplay.style.display = "block";
+      discountAmount.textContent = discount;
+      updateGrandTotal();
+      
+      // Update available points
+      availablePoints.textContent = userPoints - pointsUsed;
+      
+      // Clear input
+      pointsInput.value = "";
+    }
+
+    function updateGrandTotal() {
+      const finalTotal = Math.max(0, total - discount);
+      grandTotal.textContent = finalTotal;
+    }
+
+    function placeOrder() {
+      const paymentType = document.querySelector('input[name="payment"]:checked').value;
+      let paymentInfo = "";
+
+      if (paymentType === "upi") {
+        paymentInfo = document.getElementById("upi-id").value;
+        if (!paymentInfo) return alert("Please enter your UPI ID.");
+      } else if (paymentType === "netbanking") {
+        paymentInfo = document.getElementById("netbank-details").value;
+        if (!paymentInfo) return alert("Please enter net banking details.");
+      } else {
+        paymentInfo = "Cash on Delivery selected.";
+      }
+
+      let orderMessage = `✅ Order Placed Successfully!\nPayment Method: ${paymentType.toUpperCase()}\n${paymentInfo}`;
+      
+      if (discount > 0) {
+        orderMessage += `\n\nYou saved ₹${discount} using ${pointsUsed} points!`;
+        orderMessage += `\nRemaining Points: ${userPoints - pointsUsed}`;
+      }
+      
+      alert(orderMessage);
+      window.close();
+    }
+  </script>
+</body>
+</html>-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Veggie Cart - Billing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: linear-gradient(to right, #f0fff4, #e8f5e9);
+      color: #2e2e2e;
+    }
+    h1 {
+      color: #2e7d32;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 2.5rem;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      padding: 2rem;
+    }
+    h2 {
+      margin-top: 0;
+      color: #388e3c;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    #item-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #item-list li {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #eee;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    .total {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      text-align: right;
+    }
+    .payment label {
+      display: flex;
+      align-items: center;
+      margin-top: 1.25rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .payment input[type="radio"] {
+      margin-right: 0.75rem;
+      transform: scale(1.2);
+    }
+    .payment input[type="text"] {
+      margin-top: 0.5rem;
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+    input[type="number"] {
+      margin-top: 0.5rem;
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+    button {
+      background: linear-gradient(90deg, #66bb6a, #43a047);
+      color: white;
+      border: none;
+      padding: 14px 24px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 12px;
+      margin-top: 1rem;
+      width: 100%;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #5cb85c, #388e3c);
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🛒 Checkout</h1>
+
+  <div class="container">
+    <div class="card summary" id="order-summary">
+      <h2>🧾 Order Summary</h2>
+      <ul id="item-list"></ul>
+      <p class="total">Total: ₹<span id="grand-total">0</span></p>
+    </div>
+
+    <div class="card" id="points-section">
+      <h2>🎁 Redeem Points</h2>
+      <p>50 points = ₹5</p>
+      <input type="number" id="points-input" placeholder="Enter points to redeem" />
+      <button onclick="redeemPoints()">🎉 Redeem Points</button>
+      <p id="redeem-msg" style="margin-top: 1rem; color: #2e7d32; font-weight: 600;"></p>
+    </div>
+
+    <div class="card payment">
+      <h2>💳 Payment Method</h2>
+      <label><input type="radio" name="payment" value="upi" checked> UPI</label>
+      <input type="text" id="upi-id" placeholder="Enter your UPI ID (e.g. name@bank)" />
+
+      <label><input type="radio" name="payment" value="netbanking"> Net Banking</label>
+      <input type="text" id="netbank-details" placeholder="Enter Net Banking credentials" />
+
+      <label><input type="radio" name="payment" value="cod"> Cash on Delivery</label>
+
+      <button onclick="placeOrder()">🛍️ Place Order</button>
+    </div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const cartData = urlParams.get('cart');
+    const cart = JSON.parse(decodeURIComponent(cartData || "[]"));
+
+    const itemList = document.getElementById("item-list");
+    const grandTotal = document.getElementById("grand-total");
+
+    let total = 0;
+    let redeemedAmount = 0;
+
+    cart.forEach(item => {
+      const li = document.createElement("li");
+      li.innerHTML = `<span>${item.name}</span><span>₹${item.price}</span>`;
+      itemList.appendChild(li);
+      total += item.price;
+    });
+
+    grandTotal.textContent = total;
+
+    function redeemPoints() {
+      const points = parseInt(document.getElementById("points-input").value, 10);
+      const msg = document.getElementById("redeem-msg");
+
+      if (isNaN(points) || points < 50) {
+        alert("You need at least 50 points to redeem.");
+        return;
+      }
+
+      redeemedAmount = Math.floor(points / 50) * 5;
+      const newTotal = total - redeemedAmount;
+      grandTotal.textContent = newTotal >= 0 ? newTotal : 0;
+
+      msg.textContent = `You redeemed ${points} points for ₹${redeemedAmount}!`;
+    }
+
+    function placeOrder() {
+      const paymentType = document.querySelector('input[name="payment"]:checked').value;
+      let paymentInfo = "";
+
+      if (paymentType === "upi") {
+        paymentInfo = document.getElementById("upi-id").value;
+        if (!paymentInfo) return alert("Please enter your UPI ID.");
+      } else if (paymentType === "netbanking") {
+        paymentInfo = document.getElementById("netbank-details").value;
+        if (!paymentInfo) return alert("Please enter net banking details.");
+      } else {
+        paymentInfo = "Cash on Delivery selected.";
+      }
+
+      const finalAmount = total - redeemedAmount;
+      alert(`✅ Order Placed Successfully!\nPayment Method: ${paymentType.toUpperCase()}\n${paymentInfo}\nFinal Amount: ₹${finalAmount >= 0 ? finalAmount : 0}`);
+      window.close();
+    }
+  </script>
+</body>
+</html>

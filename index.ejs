@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Responsive Grocery Shopping</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+
+    section {
+      width: 100%;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    #page1 {
+      background-color: rgb(21, 212, 255);
+      overflow: hidden;
+    }
+
+    #nav {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 1200px;
+      height: 80px;
+      background: linear-gradient(90deg,
+          rgba(33, 214, 93, 0.547) 0%,
+          rgba(241, 241, 241, 0.7) 50%,
+          rgba(33, 214, 93, 0.547) 100%);
+      background-size: 200% auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      border-radius: 40px;
+      opacity: 0;
+      z-index: 10;
+      transform: translate(-50%, -100%);
+      animation: gradientFlow 3s linear infinite;
+    }
+
+    @keyframes gradientFlow {
+      0% {
+        background-position: 0% center;
+      }
+      100% {
+        background-position: 200% center;
+      }
+    }
+
+    #nav-l h1 {
+      color: white;
+      font-size: clamp(1.2rem, 2vw, 1.8rem);
+    }
+
+    #nav-r {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #nav-r a {
+      text-decoration: none;
+      font-size: clamp(0.8rem, 1.2vw, 1.1rem);
+      color: white;
+      white-space: nowrap;
+    }
+
+    #nav-r button {
+      padding: 8px 20px;
+      border-radius: 30px;
+      background-color: transparent;
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      animation: pulseGlow 2s infinite;
+      font-size: clamp(0.8rem, 1.1vw, 1rem);
+      white-space: nowrap;
+    }
+
+    #nav-r button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(21, 212, 255, 0.4);
+    }
+
+    @keyframes pulseGlow {
+      0% {
+        box-shadow: 0 0 5px rgba(21, 212, 255, 0.3);
+      }
+      50% {
+        box-shadow: 0 0 20px rgba(21, 212, 255, 0.6);
+      }
+      100% {
+        box-shadow: 0 0 5px rgba(21, 212, 255, 0.3);
+      }
+    }
+
+    #img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      z-index: 1;
+    }
+
+    #img img {
+      object-fit: cover;
+      height: 100%;
+      width: 100%;
+    }
+
+    #page1 > h1 {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: clamp(2rem, 5vw, 5rem);
+      text-align: center;
+      width: 90%;
+      line-height: 1.2;
+      z-index: 2;
+    }
+
+    #panel {
+      position: absolute;
+      top: 60%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+    }
+
+    #panel button {
+      height: 80px;
+      width: 180px;
+      background-color: #ffffff;
+      border: 2px solid #4CAF50;
+      border-radius: 8px;
+      color: #333;
+      font-size: clamp(0.9rem, 1.2vw, 1.2rem);
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    #panel button:hover {
+      background-color: #e8f5e9;
+      transform: scale(1.05);
+      box-shadow: 0 6px 12px rgba(76, 175, 80, 0.2);
+    }
+
+    #page2 {
+      position: relative;
+      background-color: #f8f8f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 100px 20px;
+      overflow: hidden;
+    }
+
+    #page2 video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    #page2 .content {
+      position: relative;
+      z-index: 2;
+      color: #fff;
+      text-shadow: 0 0 10px rgba(0,0,0,0.6);
+    }
+
+    #page2 h2 {
+      font-size: 200px;
+      margin-bottom: 20px;
+      color : rgba(0, 0, 0, 0.537);
+    }
+
+    #page2 p {
+      max-width: 100%;
+      font-size: 20px;
+      color: rgba(172, 255, 47, 0.679);
+    }
+
+    #page3 {
+      background-color: #e0f7fa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 100px 20px;
+    }
+
+    #page3 h2 {
+      font-size: 100px;
+      margin-bottom: 20px;
+      color: greenyellow;
+    }
+
+    #page3 p {
+      max-width: 700px;
+      font-size: 1.2rem;
+      color: #333;
+    }
+
+    .three-column-layout {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 30px;
+      margin-top: 60px;
+      flex-wrap: wrap;
+    }
+
+    .left-text,
+    .right-text {
+      flex: 1;
+      min-width: 250px;
+      max-width: 300px;
+      text-align: left;
+      color: #333;
+    }
+
+    .left-text h3,
+    .right-text h3 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      color: #00796B;
+    }
+
+    .left-text p,
+    .right-text p {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #444;
+    }
+
+    .three-column-layout .img-wrapper {
+      flex: 1.5;
+      max-width: 500px;
+      width: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .three-column-layout .img-wrapper img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    @media (min-width: 1024px) and (max-width: 1366px) {
+  #page1 > h1 {
+    font-size: 3rem;
+  }
+
+  #page2 h2 {
+    font-size: 6rem;
+  }
+
+  #page3 h2 {
+    font-size: 4rem;
+  }
+
+  .three-column-layout {
+    gap: 20px;
+  }
+
+  .left-text, .right-text {
+    font-size: 0.95rem;
+  }
+}
+
+@media (min-width: 1367px) and (max-width: 1920px) {
+  #page1 > h1 {
+    font-size: 4rem;
+  }
+
+  #page2 h2 {
+    font-size: 7rem;
+  }
+
+  #page3 h2 {
+    font-size: 5rem;
+  }
+
+  .left-text, .right-text {
+    font-size: 1.05rem;
+  }
+
+  #nav {
+    padding: 25px 50px;
+  }
+}
+
+
+  </style>
+</head>
+<body>
+
+    <section id="page1">
+        <div id="nav">
+          <div id="nav-l">
+            <img src="https://media.licdn.com/dms/image/v2/D4D22AQHkONgCZK1JwQ/feedshare-shrink_2048_1536/B4DZYeP_eXHAAs-/0/1744264232160?e=1747267200&v=beta&t=aG6Pap-uKTMrD_Vg65eZpHEiqiJWM6dxTSvQdnQ1qYs" alt="Logo" style="height: 50px;" >
+          </div>
+          <div id="nav-r">
+            <a href="#">Home</a>
+            <a href="#">Products</a>
+            <a href="#">Services</a>
+            <a href="#">About Us</a>
+            <a href="#">Contact</a>
+            <a href="/signin">Sign up</a>
+            <a href="/signin">Sign In</a>
+          </div>
+        </div>
+      
+
+    <div id="img">
+      <img src="http://samfruit.uz/images/original/3c555654546957cb961cef491146a9f4.jpg" alt="Banner"/>
+    </div>
+
+    <h1>The Next generation of <br>grocery shopping is here !!!</h1>
+
+    <div id="panel">
+      <a href="/home">
+        <button>Get Started</button>
+      </a>
+    </div>
+  </section>
+
+  <section id="page2">
+    <video src="https://videos.pexels.com/video-files/1649831/1649831-sd_640_360_30fps.mp4" autoplay muted loop></video>
+    <div class="content">
+      <h2>Discover Fresh Choices</h2>
+      <p>Explore a wide range of organic and fresh groceries delivered straight to your door. Our marketplace brings local farmers and sustainable producers right to your fingertips.</p>
+    </div>
+  </section>
+
+  <section id="page3">
+    <h2>Join Our Green Movement</h2>
+    <p>Our eco-conscious delivery and packaging methods are designed to help reduce your carbon footprint. Shop smarter and greener today with our next-gen grocery experience.</p>
+    <div class="three-column-layout">
+      <div class="left-text">
+        <h3>Why Choose Us?</h3>
+        <p>We connect you with local farms, support small producers, and ensure the freshest delivery experience.</p>
+      </div>
+      <div class="img-wrapper">
+        <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGhlYWx0aHl8ZW58MHx8MHx8fDA%3D" alt="Eco Delivery">
+      </div>
+      <div class="right-text">
+        <h3>Eco-Friendly Promise</h3>
+        <p>Our biodegradable packaging and zero-emission logistics help you shop responsibly without compromise.</p>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/ScrollTrigger.min.js"></script>
+  <script>
+    window.addEventListener('load', function () {
+      gsap.to("#nav", {
+        duration: 1.5,
+        opacity: 1,
+        y: 0,
+        ease: "power4.out",
+        delay: 0.5
+      });
+
+      gsap.from("#nav-l h1", {
+        duration: 1.5,
+        opacity: 0,
+        scale: 0.5,
+        ease: "power4.out",
+        delay: 1
+      });
+
+      gsap.from("#nav-r a", {
+        duration: 1.5,
+        opacity: 0,
+        x: 50,
+        stagger: 0.1,
+        ease: "power4.out",
+        delay: 1.3
+      });
+
+      gsap.from("#nav-r button", {
+        duration: 1.5,
+        opacity: 0,
+        scale: 0.5,
+        ease: "power4.out",
+        delay: 1.6
+      });
+
+      gsap.from("#page1 > h1", {
+        duration: 1.5,
+        opacity: 0,
+        scale: 0.5,
+        ease: "power4.out",
+        delay: 2
+      });
+
+      gsap.from("#page2 .content h2, #page2 .content p", {
+        scrollTrigger: "#page2",
+        opacity: 0,
+        y: 50,
+        duration: 1,
+        stagger: 0.2,
+        ease: "power2.out"
+      });
+
+      gsap.from("#page3 h2, #page3 p, #page3 .three-column-layout", {
+        scrollTrigger: "#page3",
+        opacity: 0,
+        y: 50,
+        duration: 1,
+        stagger: 0.2,
+        ease: "power2.out"
+      });
+    });
+  </script>
+</body>
+</html>

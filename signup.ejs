@@ -1,0 +1,123 @@
+<!--<h2>Sign Up Page</h2><form method='POST' action='/signup'>Name: <input name='name'/> Email: <input name='email'/> Password: <input name='password'/> <button type='submit'>Register</button></form>-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EcoAction - Sign Up</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background-color: #e6f5e9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 128, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .container h2 {
+      text-align: center;
+      color: #2e7d32;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #555;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #388e3c;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 15px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .footer a {
+      color: #4caf50;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Sign Up for EcoAction</h2>
+        <form action="/signup" method="POST">
+        <label for="name">Full Name:</label>
+        <input type="text" name="name" id="name" required>
+        <br>
+        <br>
+        <label for="email">Email:</label>
+        <input type="email" name="email" id="email" required>
+        <br>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password" required>
+        <br>
+        <br>
+        <label for="district">District</label>
+      <select id="district" name="district" required>
+      <option value="South 24 Parganas">South 24 Parganas</option>
+      <option value="Purulia">Purulia</option>
+      <option value="North 24 Parganas">North 24 Parganas</option>
+    </select><br><br>
+        <button type="submit">Register</button>
+    </form>
+      Already have an account? <a href="/signin">Login here</a>
+    </div>
+  </div>
+</body>
+
+</html>
+

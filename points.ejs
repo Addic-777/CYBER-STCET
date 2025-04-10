@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Green Activity Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #2e7d32;
+      margin-bottom: 1rem;
+    }
+
+    .current-event-banner {
+      background-color: #a5d6a7;
+      color: #1b5e20;
+      font-weight: bold;
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      text-align: center;
+      width: 100%;
+      max-width: 800px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .total-points {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background: #4caf50;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 999;
+    }
+
+    .dashboard {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    .card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      flex: 1;
+      min-width: 280px;
+      text-align: center;
+    }
+
+    .points-box {
+      background: #ffffff;
+      margin-top: 2rem;
+      padding: 1.5rem 2rem;
+      border-radius: 20px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 600px;
+      width: 90%;
+      animation: fadeInUp 1s ease-out forwards;
+    }
+
+    .points-box h3 {
+      font-size: 1.5rem;
+      color: #2e7d32;
+      margin-bottom: 0.5rem;
+    }
+
+    #pointsValue {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #43a047;
+      margin-bottom: 0.25rem;
+    }
+
+    .note {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .claim-btn {
+      margin-top: 1rem;
+      background-color: #388e3c;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .claim-btn:hover {
+      background-color: #2e7d32;
+    }
+
+    .events-section {
+      margin-top: 3rem;
+      background: white;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 1000px;
+      text-align: center;
+    }
+
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .event-card {
+      background: #f1f8e9;
+      border-radius: 16px;
+      padding: 1.2rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      transition: transform 0.3s ease;
+    }
+
+    .event-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .event-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #388e3c;
+      margin-bottom: 0.5rem;
+    }
+
+    .participants {
+      font-size: 0.95rem;
+      color: #555;
+    }
+
+    .join-btn {
+      margin-top: 1rem;
+      background-color: #2e7d32;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .join-btn:hover {
+      background-color: #1b5e20;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="total-points" id="totalPoints">🌟 Total Points: 0</div>
+  <h1>🌿 Green Activity Dashboard</h1>
+  <div class="current-event-banner" id="currentEventBanner">🌿 No event selected yet.</div>
+
+  <div class="dashboard">
+    <div class="card">
+      <h2>Your Steps</h2>
+      <canvas id="stepsChart" width="200" height="200"></canvas>
+      <p id="stepsText"></p>
+    </div>
+
+    <div class="card">
+      <h2>Leaderboard</h2>
+      <ol id="leaderboardList"></ol>
+    </div>
+  </div>
+
+  <div class="points-box">
+    <h3>🎯 Points Claimed</h3>
+    <div id="pointsValue">0 Points</div>
+    <p class="note">Based on 1000 steps = 50 points</p>
+    <button class="claim-btn" id="claimBtn">Claim Points</button>
+  </div>
+
+  <div class="events-section">
+    <h2>🔥 Ongoing Events</h2>
+    <div class="events-grid" id="eventsGrid"></div>
+  </div>
+
+  <script src="https://unpkg.com/lenis@1.2.3/dist/lenis.min.js"></script> 
+  <script>
+    let userSteps = 8530;
+    const goalSteps = 10000;
+    const pointsPer1000 = 50;
+    let currentClaimable = Math.round((userSteps / 1000) * pointsPer1000);
+    let totalPoints = 0;
+
+    document.getElementById("stepsText").textContent = `You have walked ${userSteps.toLocaleString()} steps`;
+    document.getElementById("pointsValue").textContent = `${currentClaimable} Points`;
+    document.getElementById("totalPoints").textContent = `🌟 Total Points: ${totalPoints}`;
+
+    // Chart.js circular chart
+    const ctx = document.getElementById("stepsChart").getContext("2d");
+    const stepsChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ["Steps Walked", "Remaining"],
+        datasets: [{
+          data: [userSteps, goalSteps - userSteps],
+          backgroundColor: ["#66bb6a", "#e0e0e0"],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        cutout: "70%",
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+
+    // GSAP Animation
+    gsap.from(".card, .points-box", {
+      opacity: 0,
+      y: 30,
+      duration: 1,
+      stagger: 0.2,
+      ease: "power2.out"
+    });
+
+    // Claim Points
+    document.getElementById("claimBtn").addEventListener("click", () => {
+      if (currentClaimable <= 0) return;
+
+      totalPoints += currentClaimable;
+      currentClaimable = 0;
+
+      document.getElementById("totalPoints").textContent = `🌟 Total Points: ${totalPoints}`;
+      document.getElementById("pointsValue").textContent = `0 Points`;
+
+      gsap.fromTo("#totalPoints", { scale: 1 }, { scale: 1.15, duration: 0.3, yoyo: true, repeat: 1 });
+    });
+
+    // Dummy leaderboard
+    const leaderboard = [
+      { name: "Aditya Saha", steps: 10500 },
+      { name: "Sourav", steps: 9800 },
+      { name: "Sayantika", steps: 9200 },
+      { name: "Vedika", steps: userSteps },
+      { name: "Vani", steps: 7600 },
+      { name: "Kushal", steps: 6900 },
+      { name: "Dev", steps: 6600 },
+      { name: "Anjali", steps: 6200 },
+      { name: "Souvik", steps: 6100 },
+      { name: "Dipak", steps: 5000 },
+    ];
+    leaderboard.sort((a, b) => b.steps - a.steps);
+    const lbList = document.getElementById("leaderboardList");
+    leaderboard.forEach(person => {
+      const li = document.createElement("li");
+      li.textContent = `${person.name} - ${person.steps.toLocaleString()} steps`;
+      lbList.appendChild(li);
+    });
+
+    // Event List
+    const events = [
+      { name: "Tree Plantation Drive", participants: 120 },
+      { name: "Bike to Work Week", participants: 85 },
+      { name: "Plastic-Free Day", participants: 97 },
+      { name: "Neighborhood Recycling Fest", participants: 73 },
+      { name: "Walk for Earth", participants: 150 },
+      { name: "Green Commute Challenge", participants: 110 }
+    ];
+
+    const grid = document.getElementById("eventsGrid");
+    const banner = document.getElementById("currentEventBanner");
+
+    events.forEach((event, index) => {
+      const card = document.createElement("div");
+      card.className = "event-card";
+      card.innerHTML = `
+        <div class="event-title">${event.name}</div>
+        <div class="participants">${event.participants} participants</div>
+        <button class="join-btn">Join</button>
+      `;
+      grid.appendChild(card);
+
+      card.querySelector(".join-btn").addEventListener("click", () => {
+        const confirmJoin = confirm(`Do you want to join \"${event.name}\"?`);
+        if (confirmJoin) {
+          banner.textContent = `🌟 Current Event: ${event.name}`;
+
+          // Reset steps and chart
+          userSteps = 0;
+          currentClaimable = 0;
+          document.getElementById("stepsText").textContent = `You have walked 0 steps`;
+          document.getElementById("pointsValue").textContent = `0 Points`;
+
+          stepsChart.data.datasets[0].data = [0, goalSteps];
+          stepsChart.update();
+
+          gsap.fromTo("#currentEventBanner", { y: -30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 });
+        }
+      });
+    });
+    // Initialize Lenis
+const lenis = new Lenis();
+
+// Use requestAnimationFrame to continuously update the scroll
+function raf(time) {
+  lenis.raf(time);
+  requestAnimationFrame(raf);
+}
+
+requestAnimationFrame(raf);
+  </script>
+</body>
+</html>
